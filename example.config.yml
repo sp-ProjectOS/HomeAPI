@@ -1,0 +1,12 @@
+# ProjectOS LocalAPI Configuration File
+
+# Device definition for the local network
+devices:
+  - name: "My Computer"
+    device_type: "computer"
+    mac: "00:00:00:00:00:00"
+    ip: "0.0.0.0"
+  - name: "My Router"
+    type: "router"
+    mac: "00:00:00:00:00:00"
+    ip: "0.0.0.0"
