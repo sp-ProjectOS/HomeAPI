@@ -25,7 +25,7 @@ pub fn device(app:&State<App>,name_or_id: &str) -> String {
 	let result = magic_packet.send();
 	// Check if the device was woken
 	if result.is_err() {
-		return format!("Failed to wake device {}", name_or_id);
+		return format!("Failed to send WakeOnLan Packet to device {}", name_or_id);
 	}
 	// Return the result
 	format!("Sent WakeOnLan packet to device {}", device.unwrap().name)
