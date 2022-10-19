@@ -6,4 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.5.0-rc.2"
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
+wake-on-lan = "0.2.0"
+yaml-rust = "0.4.5"
+
+[dependencies.rocket_db_pools]
+version = "0.1.0-rc.2"
+features = ["sqlx_sqlite"]
