@@ -38,18 +38,18 @@ jobs:
           command: build
           args: --release --target ${{ matrix.target }}
 
-      - name: Package
+      - name: Move
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release          
-          tar czvf ~/projectos-local_api-${{ matrix.target }}.tar.gz projectos-local_api
+          mv projectos-local_api ~/projectos-local_api-${{ matrix.target }}
           cd -
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Binary-${{ matrix.target }}
+          name: ${{ matrix.target }}
           path: |
-            ~/projectos-local_api-${{ matrix.target }}.tar.gz
+            ~/projectos-local_api-${{ matrix.target }}
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
