@@ -18,7 +18,7 @@ async fn main() -> Result<(), rocket::Error> {
 	let _rocket = rocket::build()
 		.manage(app)
 		.mount("/", routes![routes::index])
-		.mount("/wake", routes![routes::wake::wol_wake])
+		.mount("/wake", routes![routes::wake::device])
 		.launch()
 		.await?;
 	// Return the result
