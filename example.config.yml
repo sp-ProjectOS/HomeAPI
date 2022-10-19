@@ -3,10 +3,12 @@
 # Device definition for the local network
 devices:
   - name: "My Computer"
-    device_type: "computer"
+    id: "my-computer"
+    type: "computer"
     mac: "00:00:00:00:00:00"
     ip: "0.0.0.0"
   - name: "My Router"
+    id: "my-router"
     type: "router"
     mac: "00:00:00:00:00:00"
     ip: "0.0.0.0"
