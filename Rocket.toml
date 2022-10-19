@@ -1,0 +1,2 @@
+[default.databases.sqlite_logs]
+url = "./temp/database/projectos-local_api.sqlite"
