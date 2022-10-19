@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release          
-          tar czvf ../../../projectos-local_api-${{ matrix.target }}.tar.gz <YOUR_BINARY_NAME>
+          tar czvf ../../../projectos-local_api-${{ matrix.target }}.tar.gz projectos-local_api
           cd -
       - name: Publish
         uses: softprops/action-gh-release@v1
