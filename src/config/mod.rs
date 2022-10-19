@@ -17,13 +17,14 @@ pub struct Device {
     pub device_type: DeviceType,
     _type_string: String,
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DeviceType {
     Computer,
     Phone,
     Tablet,
     Router,
     Printer,
+	Switch,
     Other,
 }
 pub static DEFAULT_CONFIG_FILE: &str = "config.yml";

@@ -1,7 +1,7 @@
 use rocket::State;
 // Path: src/routes/wake.rs
 use wake_on_lan;
-use crate::{util::net::parse_mac_address, App};
+use crate::{util::net::parse_mac_address, App, config::DeviceType};
 
 #[post("/<name_or_id>")]
 pub fn device(app:&State<App>,name_or_id: &str) -> String {
@@ -12,6 +12,9 @@ pub fn device(app:&State<App>,name_or_id: &str) -> String {
 	// Check if the device was found
 	if device.is_none() {
 		return format!("Device {} not found", name_or_id);
+	}
+	if !(device.unwrap().device_type == DeviceType::Computer || device.unwrap().device_type == DeviceType::Other) {
+		return format!("Device {} probably doesn't support WakeOnLan", name_or_id);
 	}
 	// Convert the MAC address to a byte array
 	let mac_string = &device.unwrap().mac;
