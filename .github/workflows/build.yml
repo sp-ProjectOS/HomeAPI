@@ -50,8 +50,8 @@ jobs:
           name: Binary-${{ matrix.target }}
           path: |
             ~/projectos-local_api-${{ matrix.target }}.tar.gz
-        if: startsWith(github.ref, 'refs/tags/')
       - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         # TODO: if any of the build step fails, the release should be deleted.
         with:
