@@ -1,7 +1,7 @@
 [package]
 name = "projectos-local_api"
 version = "0.1.0"
-edition = "2021"
+edition = "2021" # Rust 2021 edition
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,7 +9,17 @@ edition = "2021"
 rocket = { version = "0.5.0-rc.2", features = ["json"] }
 wake-on-lan = "0.2.0"
 yaml-rust = "0.4.5"
+cloudflare = "0.10.1"
+job_scheduler = "1.2.1"
+json = "0.12.4"
+async-trait = "0.1.60"
+tokio = "1.23.0"
+futures = "0.3.25"
 
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"
 features = ["sqlx_sqlite"]
+
+[dependencies.reqwest]
+version = "0.11.13"
+features = ["json"]

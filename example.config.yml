@@ -1,5 +1,6 @@
-# ProjectOS LocalAPI Configuration File
+# ProjectOS HomeAPI Configuration File
 
+debug: false
 # Device definition for the local network
 devices:
   - name: "My Computer"
@@ -12,3 +13,8 @@ devices:
     type: "router"
     mac: "00:00:00:00:00:00"
     ip: "0.0.0.0"
+# DDNS configuration with Cloudflare
+dns:
+  domain: "mydomain.com"
+  subdomain: "home"
+  token: "mytoken"

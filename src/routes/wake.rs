@@ -1,12 +1,12 @@
 use rocket::State;
 // Path: src/routes/wake.rs
 use wake_on_lan;
-use crate::{util::net::parse_mac_address, App, config::DeviceType};
+use crate::{util::net::parse_mac_address, config::device::DeviceType, AppState};
 
 #[post("/<name_or_id>")]
-pub fn device(app:&State<App>,name_or_id: &str) -> String {
+pub fn device(app:&State<AppState>,name_or_id: &str) -> String {
 	// Load the configuration file
-	let config = &app.config;
+	let config = &app.lock().unwrap().config.clone();
 	// Find the device in the configuration file
 	let device = config.devices.iter().find(|device| device.name == name_or_id || device.id == name_or_id);
 	// Check if the device was found
