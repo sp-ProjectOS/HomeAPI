@@ -12,5 +12,5 @@ pub async fn status(/*mut db: Connection<MainDB>*/) -> String {
 		.fetch_one(&mut *db).await;
 	// Return the result
 	format!("{{\"server\": \"online\", \"database\": \"{}\"}}", if result.is_ok() { "online" } else { "offline" }) */
-	format!("{{\"server\": \"online\", \"database\": \"online\"}}")
+	format!("{{\"server\": \"online\"}}")
 }

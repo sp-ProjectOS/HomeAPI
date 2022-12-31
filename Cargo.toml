@@ -10,11 +10,11 @@ rocket = { version = "0.5.0-rc.2", features = ["json"] }
 wake-on-lan = "0.2.0"
 yaml-rust = "0.4.5"
 cloudflare = "0.10.1"
-job_scheduler = "1.2.1"
 json = "0.12.4"
 async-trait = "0.1.60"
 tokio = "1.23.0"
 futures = "0.3.25"
+clokwerk = "0.4.0"
 
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"

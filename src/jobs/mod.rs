@@ -1,5 +1,7 @@
+use std::time::Duration;
+
 use crate::AppState;
-use job_scheduler::{Job, JobScheduler};
+use clokwerk::{Interval, ScheduleHandle, Scheduler};
 
 use self::ddns::DnsTask;
 
@@ -8,7 +10,7 @@ mod ddns;
 #[derive(Debug)]
 struct ScheduledJob<T: TaskTrait + Copy> {
     name: String,
-    cron_interval: String,
+    interval: Interval,
     state: AppState,
     task: T,
 }
@@ -22,50 +24,40 @@ impl<T: TaskTrait + Copy> ScheduledJob<T> {
         self.name.clone()
     }
     fn run_task(&self) {
-        futures::executor::block_on(async {
-            self.task.run(self.state.clone()).await;
-        });
+        // use tokio runtime to run the task
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(self.task.run(self.state.clone()));
     }
 }
 
-pub async fn start(state: AppState) {
+pub async fn start(state: AppState) -> ScheduleHandle {
     // Start the jobs using job_scheduler
-    let mut sched = JobScheduler::new();
+    let mut sched = Scheduler::new();
 
     // Add the jobs to the scheduler
     let jobs = vec![ScheduledJob {
         name: "DDNS".to_string(),
-        cron_interval: "0 0,15,30,45 * * * *".to_string(),
+        interval: Interval::Minutes(15),
         state: state.clone(),
         task: DnsTask,
     }];
 
-	let debug_flag = state.lock().unwrap().config.debug.clone();
+    let debug_flag = state.lock().unwrap().config.debug.clone();
 
-	if debug_flag {
-		println!("Jobs: {:#?}", jobs);
-	}
-
+    if debug_flag {
+        println!("Jobs: {:#?}", jobs);
+    }
 
     for job in jobs {
         println!("Added job: {}", job.name());
-        sched.add(Job::new(job.cron_interval.parse().unwrap(), move || {
-            job.run_task();
-        }));
+        sched.every(job.interval).run(move || job.run_task());
     }
 
     // Start the scheduler
 
-    
-
     if debug_flag {
         println!("Running scheduler");
     }
-    loop {
-		if state.lock().unwrap().is_terminated() {
-			break;
-		}
-        sched.tick();
-        std::thread::sleep(std::time::Duration::from_millis(100));
-    }
+
+    return sched.watch_thread(Duration::from_millis(100));
 }
