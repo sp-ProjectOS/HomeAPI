@@ -62,7 +62,10 @@ pub async fn start(state: AppState) {
         println!("Running scheduler");
     }
     loop {
+		if state.lock().unwrap().is_terminated() {
+			break;
+		}
         sched.tick();
-        std::thread::sleep(std::time::Duration::from_millis(1000*30));
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
 }

@@ -35,30 +35,35 @@ async fn main() -> Result<(), rocket::Error> {
 	let server_appstate = appstate.clone();
 	let runtime_appstate = appstate.clone();
 
-	// Run runtime and server as concurrent thread and wait for SIGINT
-	// Run the server and the runtime concurrently
-	// Terminate the server if the runtime terminates and vice versa
-	// Return the result
-
-	let server = tokio::spawn(async move {
-		// Wait 10 seconds before starting the server
-		tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+	/*
+	 * Set handles to the server and runtime and be able to
+	 * gracefully shutdown the server when the runtime is
+	 * terminated and vice versa.
+	 * Run the server and runtime in parallel.
+	 */
+	let server_handle = tokio::spawn(async move {
+		println!("Starting server");
 		server(server_appstate).await
 	});
-
-	let runtime = tokio::spawn(async move {
+	let runtime_handle = tokio::spawn(async move {
+		println!("Starting runtime");
 		jobs::start(runtime_appstate).await
 	});
 
+	// Wait for either the server or runtime to terminate
 	let _ = tokio::select! {
 		biased;
-		_ = server => {
+		_ = server_handle => {
 			println!("Server terminated");
+			appstate.lock().unwrap().terminate();
 		}
-		_ = runtime => {
+		_ = runtime_handle => {
 			println!("Runtime terminated");
+			appstate.lock().unwrap().terminate();
 		}
+		
 	};
 
+	println!("Successfully terminated");
 	Ok(())
 }
