@@ -43,20 +43,20 @@ jobs:
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release          
-          mv projectos-local_api ~/projectos-local_api-${{ matrix.target }}
+          mv projectos-homeapi ~/projectos-homeapi-${{ matrix.target }}
           cd -
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}
           path: |
-            ~/projectos-local_api-${{ matrix.target }}
+            ~/projectos-homeapi-${{ matrix.target }}
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         # TODO: if any of the build step fails, the release should be deleted.
         with:
-            files: 'projectos-local_api*'
+            files: 'projectos-homeapi*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
