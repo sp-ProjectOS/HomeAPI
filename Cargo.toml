@@ -1,5 +1,5 @@
 [package]
-name = "projectos-local_api"
+name = "projectos-homeapi"
 version = "0.1.0"
 edition = "2021"             # Rust 2021 edition
 
@@ -24,6 +24,6 @@ features = ["sqlx_sqlite"]
 version = "0.11.13"
 features = ["json"]
 
-#[dependencies.openssl]
-#version = "0.10"
-#features = ["vendored"]
+[dependencies.openssl]
+version = "0.10"
+features = ["vendored"]

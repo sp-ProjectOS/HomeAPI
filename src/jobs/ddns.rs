@@ -141,7 +141,7 @@ impl TaskTrait for DnsTask {
                     "comment": "HomeAPI_DDNS",
 					"name": format!("{}.{}", dns_record_name, dns_zone_name),
                     "content": ip,
-                    "ttl": 120,
+                    "ttl": 900,// 15 minutes
                     "proxied": false
                 }))
                 .send()

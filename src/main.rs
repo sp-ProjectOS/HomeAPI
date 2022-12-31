@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
 
-
 use state::InnerState;
 
 #[macro_use]
@@ -42,6 +41,8 @@ async fn main() -> Result<(), rocket::Error> {
 	// Return the result
 
 	let server = tokio::spawn(async move {
+		// Wait 10 seconds before starting the server
+		tokio::time::sleep(std::time::Duration::from_secs(10)).await;
 		server(server_appstate).await
 	});
 

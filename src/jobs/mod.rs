@@ -5,7 +5,7 @@ use self::ddns::DnsTask;
 
 mod ddns;
 // Let's do a struct for the jobs to make it easier to add them
-
+#[derive(Debug)]
 struct ScheduledJob<T: TaskTrait + Copy> {
     name: String,
     cron_interval: String,
@@ -35,10 +35,17 @@ pub async fn start(state: AppState) {
     // Add the jobs to the scheduler
     let jobs = vec![ScheduledJob {
         name: "DDNS".to_string(),
-        cron_interval: "0 * * * * * *".to_string(),
+        cron_interval: "0 0,15,30,45 * * * *".to_string(),
         state: state.clone(),
         task: DnsTask,
     }];
+
+	let debug_flag = state.lock().unwrap().config.debug.clone();
+
+	if debug_flag {
+		println!("Jobs: {:#?}", jobs);
+	}
+
 
     for job in jobs {
         println!("Added job: {}", job.name());
@@ -49,13 +56,13 @@ pub async fn start(state: AppState) {
 
     // Start the scheduler
 
-    let debug_flag = state.lock().unwrap().config.debug.clone();
+    
 
     if debug_flag {
-        println!("Starting scheduler");
+        println!("Running scheduler");
     }
     loop {
         sched.tick();
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        std::thread::sleep(std::time::Duration::from_millis(1000*30));
     }
 }
