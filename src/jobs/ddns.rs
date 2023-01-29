@@ -19,112 +19,152 @@ pub(super) struct DnsTask;
 #[async_trait]
 impl TaskTrait for DnsTask {
     async fn run(&self, state: AppState) {
-		
-		let config = state.lock().unwrap().config.clone();
-		// Get the configuration
-		let debug_flag = config.debug.clone();
-		let dns_zone_name = config.dns.domain.clone();
+        let config = state.lock().unwrap().config.clone();
+        // Get the configuration
+        let debug_flag = config.debug.clone();
+        let dns_zone_name = config.dns.domain.clone();
         let dns_record_name = config.dns.subdomain.clone();
         let dns_token = config.dns.token.clone();
-		
+
         let client = reqwest::Client::new();
 
-		if debug_flag {
-			println!("Running DDNS job");
-		}
+        if debug_flag {
+            println!("Running DDNS job");
+        }
 
         // Raw API call version
         // Use when cloudflare_rs is not working
         // Get the IP address
-        let ip = client
-            .get(SELFIP_URL)
-            .send()
-            .await
-            .unwrap()
+        // Do no panic if the request fails
+         let ip_req = match client
+        .get(SELFIP_URL)
+        .send()
+        .await{
+			Ok(ip) => ip,
+			Err(e) => {
+				println!("Error getting IP: {}", e);
+				return;
+			}
+		};
+
+        let ip = match ip_req
             .text()
-            .await
-            .unwrap();
-		if debug_flag {
-			// Print the IP
-			println!("IP: {}", ip);
-		}
+            .await{
+				Ok(ip) => ip,
+				Err(e) => {
+					println!("Error getting IP: {}", e);
+					return;
+				}
+			};
+        if debug_flag {
+            // Print the IP
+            println!("IP: {}", ip);
+        }
 
-		// Get the zone ID
-		let list_zones_path = LIST_ZONES_PATH;
-		let list_zones_url = format!("{}{}", RAWCLOUDFLARE_URL, list_zones_path);
-		let zones_raw = client.get(list_zones_url)
-			.header("Authorization", format!("Bearer {}", dns_token))
-			.send()
-			.await
-			.unwrap()
-			.text()
-			.await
-			.unwrap();
+        // Get the zone ID
+        let list_zones_path = LIST_ZONES_PATH;
+        let list_zones_url = format!("{}{}", RAWCLOUDFLARE_URL, list_zones_path);
+		// Do no panic if the request fails
+        let req_zones_raw = match client
+            .get(list_zones_url)
+            .header("Authorization", format!("Bearer {}", dns_token))
+            .send()
+            .await{
+				Ok(req) => req,
+				Err(e) => {
+					println!("Error getting zones: {}", e);
+					return;
+				}
+			};
+        let zones_raw = match req_zones_raw
+            .text()
+            .await{
+				Ok(zones) => zones,
+				Err(e) => {
+					println!("Error getting zones: {}", e);
+					return;
+				}
+			};
 
-			
+        let json_zones = json::parse(&zones_raw).unwrap();
 
-		let json_zones= json::parse(&zones_raw).unwrap();
+        if debug_flag {
+            // Print the zones
+            println!("Zones: {}", json_zones);
+        }
 
-		if debug_flag {
-			// Print the zones
-			println!("Zones: {}", json_zones);
-		}
+        // Iterate through the zones and find the one we want
+        let dns_zone_id = json_zones["result"]
+            .members()
+            .find(|zone| zone["name"].as_str().unwrap() == dns_zone_name)
+            .expect("Did not find dns zone")["id"]
+            .to_string();
 
-		// Iterate through the zones and find the one we want
-		let dns_zone_id = json_zones["result"].members().find(|zone| {
-			zone["name"].as_str().unwrap() == dns_zone_name
-		}).expect("Did not find dns zone")["id"].to_string();
-		
-		if debug_flag {
-			// Print the zone ID
-			println!("DNS Zone ID: {}", dns_zone_id);
-		}
-
-
+        if debug_flag {
+            // Print the zone ID
+            println!("DNS Zone ID: {}", dns_zone_id);
+        }
 
         // Check if the record exists and if it is the same IP
         let list_records_path = LIST_RECORDS_PATH.replace("{{ZONE_IDENTIFIER}}", &dns_zone_id);
         let list_records_url = format!("{}{}", RAWCLOUDFLARE_URL, list_records_path);
 
-        let records_raw = client
+        let req_records_raw = match client
             .get(list_records_url)
             .header("Authorization", format!("Bearer {}", dns_token))
             .send()
-            .await
-            .unwrap()
+            .await{
+				Ok(req) => req,
+				Err(e) => {
+					println!("Error getting records: {}", e);
+					return;
+				}
+			};
+			let records_raw = match req_records_raw
             .text()
-            .await
-            .unwrap();
+            .await{
+				Ok(records) => records,
+				Err(e) => {
+					println!("Error getting records: {}", e);
+					return;
+				}
+			};
 
-		if debug_flag {
-			// Print the response
-			println!("List records response: {}", records_raw);
-		}
-        
+        if debug_flag {
+            // Print the response
+            println!("List records response: {}", records_raw);
+        }
+
         let json_records = json::parse(&records_raw).unwrap();
 
         // Find the record id if it exists
-		let dns_record = json_records["result"].members().find(|record| {
-			record["name"].as_str().unwrap().to_string().starts_with(&dns_record_name)
-		}).expect("Record not found");
+        let dns_record = json_records["result"]
+            .members()
+            .find(|record| {
+                record["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string()
+                    .starts_with(&dns_record_name)
+            })
+            .expect("Record not found");
 
-		let dns_record_id = dns_record["id"].as_str().unwrap_or("");
-		let dns_record_ip = dns_record["content"].as_str().unwrap_or("");
+        let dns_record_id = dns_record["id"].as_str().unwrap_or("");
+        let dns_record_ip = dns_record["content"].as_str().unwrap_or("");
 
-		if debug_flag {
-			// Print the record ID
-			println!("DNS Record ID: {}", dns_record_id);
-		}
+        if debug_flag {
+            // Print the record ID
+            println!("DNS Record ID: {}", dns_record_id);
+        }
 
-		let record_exists = dns_record_id != "";
-		let ip_is_same = dns_record_ip.to_string().eq(&ip);
+        let record_exists = dns_record_id != "";
+        let ip_is_same = dns_record_ip.to_string().eq(&ip);
 
-		if debug_flag {
-			// Print if the record exists and if the IP is the same
-			println!("Record exists: {}", record_exists);
-			println!("IP is the same: {}", ip_is_same);
-		}
-
+        if debug_flag {
+            // Print if the record exists and if the IP is the same
+            println!("Record exists: {}", record_exists);
+            println!("IP is the same: {}", ip_is_same);
+        }
 
         // If the record exists and the IP is different, update the record
         if record_exists && !ip_is_same {
@@ -133,25 +173,42 @@ impl TaskTrait for DnsTask {
                 .replace("{{RECORD_IDENTIFIER}}", &dns_record_id);
             let update_record_url = format!("{}{}", RAWCLOUDFLARE_URL, update_record_path);
 
-            let update_res_raw = client
+            let req_update_res_raw = match client
                 .put(update_record_url)
                 .header("Authorization", format!("Bearer {}", dns_token))
                 .json(&json!({
                     "type": "A",
                     "comment": "HomeAPI_DDNS",
-					"name": format!("{}.{}", dns_record_name, dns_zone_name),
+                    "name": format!("{}.{}", dns_record_name, dns_zone_name),
                     "content": ip,
                     "ttl": 900,// 15 minutes
                     "proxied": false
                 }))
                 .send()
-                .await
-                .unwrap();
+                .await{
+					Ok(req) => req,
+					Err(e) => {
+						println!("Error updating record: {}", e);
+						return;
+					}
+				};
+				let update_res_raw = match req_update_res_raw
+				.text()
+				.await{
+					Ok(res) => res,
+					Err(e) => {
+						println!("Error updating record: {}", e);
+						return;
+					}
+				};
 
-			if debug_flag {
-				// Print the response
-				println!("Update record response: {}", update_res_raw.text().await.unwrap());
-			}
+            if debug_flag {
+                // Print the response
+                println!(
+                    "Update record response: {}",
+                    update_res_raw
+                );
+            }
 
             return ();
         }
@@ -188,9 +245,9 @@ impl TaskTrait for DnsTask {
 
         // Return the result
         Ok(()) */
-		if debug_flag {
-			println!("DDNS job finished");
-		}
-		()
+        if debug_flag {
+            println!("DDNS job finished");
+        }
+        ()
     }
 }
