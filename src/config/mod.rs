@@ -13,6 +13,7 @@ pub struct Config {
 	pub debug: bool,
     pub devices: Vec<Device>,
 	pub dns: DnsConfig,
+	pub selfupdate: bool,
 }
 impl Config {
 	/* fn clone(&self) -> Config{
@@ -36,12 +37,14 @@ pub fn load_config() -> Config {
 	
 	// Load the devices
 	let debug = config[0]["debug"].as_bool().unwrap();
+	let self_update = config[0]["selfupdate"].as_bool().unwrap();
 	let devices = device::load_devices_config(&config[0]);
 	let dns = dns::load_dns_config(&config[0]);
+
 
 	if debug {
 		println!("Config: {:#?}", debugcfg);
 	}
 	// Return the configuration
-	Config { debug, devices, dns }
+	Config { debug, devices, dns, selfupdate: self_update }
 }

@@ -1,7 +1,4 @@
-[default.databases.sqlite_main]
-url = "./temp/database/projectos-local_api.sqlite"
-
 # Rocket configuration
 [default]
 address = "0.0.0.0"
-port = "3212"
+port = 3212

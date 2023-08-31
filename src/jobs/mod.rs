@@ -3,9 +3,11 @@ use std::time::Duration;
 use crate::AppState;
 use clokwerk::{Interval, ScheduleHandle, Scheduler};
 
-use self::ddns::DnsTask;
+//use self::ddns::DnsTask;
+use self::selfupdate::SelfUpdateTask;
 
 mod ddns;
+mod selfupdate;
 // Let's do a struct for the jobs to make it easier to add them
 #[derive(Debug)]
 struct ScheduledJob<T: TaskTrait + Copy> {
@@ -35,12 +37,21 @@ pub async fn start(state: AppState) -> ScheduleHandle {
     let mut sched = Scheduler::new();
 
     // Add the jobs to the scheduler
-    let jobs = vec![ScheduledJob {
-        name: "DDNS".to_string(),
-        interval: Interval::Minutes(15),
-        state: state.clone(),
-        task: DnsTask,
-    }];
+    let jobs = vec![
+       /*  ScheduledJob {
+            name: "DDNS".to_string(),
+            interval: Interval::Minutes(15),
+            state: state.clone(),
+            task: DnsTask,
+        }, */
+        ScheduledJob {
+			name: "SelfUpdate".to_string(),
+			//interval: Interval::Days(1),
+			interval: Interval::Minutes(1),
+			state: state.clone(),
+			task: SelfUpdateTask,
+		},
+    ];
 
     let debug_flag = state.lock().unwrap().config.debug.clone();
 

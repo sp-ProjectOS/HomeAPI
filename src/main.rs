@@ -73,6 +73,9 @@ async fn main() -> Result<(), rocket::Error> {
         println!("Starting runtime");
         runtime.run().await
     });
+	/* 
+	 * Use FRP to self-expose the local device to the internet, using the configured frps and subdomain
+	 */
 
     // Wait for either the server or runtime to terminate
     let _: Result<ThreadEnded, std::io::Error> = tokio::select! {

@@ -1,6 +1,6 @@
 [package]
 name = "projectos-homeapi"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"             # Rust 2021 edition
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,10 +15,7 @@ async-trait = "0.1.60"
 tokio = "1.23.0"
 futures = "0.3.25"
 clokwerk = "0.4.0"
-
-[dependencies.rocket_db_pools]
-version = "0.1.0-rc.2"
-features = ["sqlx_sqlite"]
+self_update = "0.37.0"
 
 [dependencies.reqwest]
 version = "0.11.13"
