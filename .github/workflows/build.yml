@@ -45,15 +45,16 @@ jobs:
       - name: Move
         shell: bash
         run: |
-          cd target/${{ matrix.target }}/release          
+          cd target/${{ matrix.target }}/release
           mv projectos-homeapi ~/projectos-homeapi-${{ matrix.target }}
           cd -
+          ls
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}
           path: |
-            ~/projectos-homeapi-${{ matrix.target }}
+            target/${{ matrix.target }}/release/projectos-homeapi
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
