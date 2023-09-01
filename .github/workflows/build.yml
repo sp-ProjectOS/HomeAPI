@@ -42,13 +42,13 @@ jobs:
           command: build
           args: --release --target ${{ matrix.target }}
 
-      - name: Move
-        shell: bash
-        run: |
-          cd target/${{ matrix.target }}/release
-          mv projectos-homeapi ~/projectos-homeapi-${{ matrix.target }}
-          cd -
-          ls
+#      - name: Move
+#        shell: bash
+#        run: |
+#          cd target/${{ matrix.target }}/release
+#          mv projectos-homeapi ~/projectos-homeapi-${{ matrix.target }}
+#          cd -
+#          ls
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
