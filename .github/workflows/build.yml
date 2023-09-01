@@ -52,7 +52,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}
+          name: projectos-homeapi_${{ matrix.target }}
           path: |
             target/${{ matrix.target }}/release/projectos-homeapi
       - name: Publish
