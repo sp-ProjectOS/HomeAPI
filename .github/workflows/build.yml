@@ -55,12 +55,16 @@ jobs:
           name: projectos-homeapi_${{ matrix.target }}
           path: |
             target/${{ matrix.target }}/release/projectos-homeapi
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: projectos-homeapi_${{ matrix.target }}
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         # TODO: if any of the build step fails, the release should be deleted.
         with:
-            files: 'projectos-homeapi-*'
+            files: projectos-homeapi_${{ matrix.target }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
