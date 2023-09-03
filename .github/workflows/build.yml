@@ -64,7 +64,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         # TODO: if any of the build step fails, the release should be deleted.
         with:
-            files: projectos-homeapi_${{ matrix.target }}
+            files: /home/runner/work/HomeAPI/HomeAPI/projectos-homeapi_${{ matrix.target }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
